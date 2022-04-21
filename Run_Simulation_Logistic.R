@@ -101,26 +101,16 @@ print(marg_E_Y2)
 
 
 
-
-
-
-stop();
-
-
 ##################################################################
 # Estimate power from one-wave formulas based on Kidwell et al (2018)
-# for each scenario;
+# for each sample size scenario;
 ##################################################################
-r1 <- theta_R_0 + theta_R_Ypre*mu_pre + theta_R_A1;
-#P(R=1) for regimen 1 of pairwise comparison, involving A1=+1;
-r2 <- theta_R_0 + theta_R_Ypre*mu_pre - theta_R_A1; 
-#P(R=1) for regimen 2 of pairwise comparison, involving A1=-1;
-vPOST <- pPOST * (1-pPOST); # marginal variance from formula
-# for variance of a random binary variable (p(1-p));
-p1 <- pPOST[regimen1]; #P(Y_post=1) for regimen 1 of pairwise comparison, 
-# which is assumed to be (+1,-1);
-p2 <- pPOST[regimen2]; #P(Y_post=1) for regimen 2 of pairwise comparison,
-# which is assumed to be (-1,-1);
+r1 <- marg_E_R[substr(regimen1,1,1)];
+#P(R=1 | A1) given regimen 1 of pairwise comparison;
+r2 <- marg_E_R[substr(regimen2,2,2)]; 
+#P(R=1 | A1) given regimen 2 of pairwise comparison;
+p1 <- marg_E_Y2[regimen1]; #P(Y_post=1) for regimen 1 of pairwise comparison;
+p2 <- marg_E_Y2[regimen2]; #P(Y_post=1) for regimen 2 of pairwise comparison;
 OR <- abs(as.numeric((p1/(1-p1)) / (p2/(1-p2))));
 v1 <- p1 * (1-p1); # Var(Y_post) for everybody in regimen 1;
 v2 <- p2 * (1-p2); # Var(Y_post) for everybody in regimen 2;
@@ -128,30 +118,44 @@ z_one_minus_half_alpha <- qnorm(1-target_alpha/2);
 var1_margprob_1_wave <- as.numeric( 2*((2-r1)/v1)+2*(2-r2)/(v2));
 # the approximate variance of the log odds ratio, divided by the sample size,
 # from the marginal probabilities formula;
-predicted_power_margprob <- pnorm(sqrt(n_subjects*(log(OR)^2)/
+predicted_power_margprob <- pnorm(sqrt(n_subjects_by_scenario*(log(OR)^2)/
                                          var1_margprob_1_wave)
                                   - z_one_minus_half_alpha ); 
 # this is the version of formula using marginal regimen means as inputs,
 # as Kidwell et al (2018) did; 
+print("Predicted power, working independence, from marginal probabilities:");
+print(predicted_power_margprob);
 ###################################################
-# Now we will use the version of the formula using conditional means;
-# First calculate Final outcome probabilities for responders, given each regimen:
-pPOSTr <- c(pp = beta_Ypost_0 + 
-              beta_Ypost_Ypre * mu_pre + 
-              beta_Ypost_R + 
-              beta_Ypost_A1,
-            pm = beta_Ypost_0 + 
-              beta_Ypost_Ypre * mu_pre + 
-              beta_Ypost_R + 
-              beta_Ypost_A1, # same as pp because A2 doesn't matter for responders;
-            mp = beta_Ypost_0 + 
-              beta_Ypost_Ypre * mu_pre + 
-              beta_Ypost_R -
-              beta_Ypost_A1,
-            mm = beta_Ypost_0 + 
-              beta_Ypost_Ypre * mu_pre + 
-              beta_Ypost_R -
-              beta_Ypost_A1 ); # same as pp because A2 doesn't matter for responders;
+# Now we try the version of the power formula using conditional means;
+# First calculate Final outcome probabilities for responders, 
+# given each regimen:
+design_for_responders <- design_Y2[which(design_Y2$r==1),
+                               c("y0","r","a1")];
+cond_E_Y2_for_responders <- plogis(cbind(1,as.matrix(design_for_responders)) %*%
+                                     beta_Y2[c("intercept","y0","r","a1")]);
+
+marg_E_Y2_for_responders <- 
+
+
+
+stop();
+
+# pp = beta_Ypost_0 + 
+#   beta_Ypost_Ypre * mu_pre + 
+#   beta_Ypost_R + 
+#   beta_Ypost_A1,
+# pm = beta_Ypost_0 + 
+#   beta_Ypost_Ypre * mu_pre + 
+#   beta_Ypost_R + 
+#   beta_Ypost_A1, # same as pp because A2 doesn't matter for responders;
+# mp = beta_Ypost_0 + 
+#   beta_Ypost_Ypre * mu_pre + 
+#   beta_Ypost_R -
+#   beta_Ypost_A1,
+# mm = beta_Ypost_0 + 
+#   beta_Ypost_Ypre * mu_pre + 
+#   beta_Ypost_R -
+#   beta_Ypost_A1 ); # same as pp because A2 doesn't matter for responders;
 # pPOSTr is the marginal final outcome probability 
 # for responders in each regimen.;
 vPOSTr <- pPOSTr * (1-pPOSTr);  
@@ -190,6 +194,8 @@ predicted_power_condprob <- pnorm(sqrt(n_subjects*(log(OR)^2)/
 ##################################################################
 # Marginal variances for pretest and for posttest under each regimen:
 vPRE <- mu_pre * (1-mu_pre); # Marginal pretest variance
+vPOST <- marg_E_Y2 * (1-marg_E_Y2); # marginal variance from formula
+# for variance of a random binary variable (p(1-p));
 temp <- rbind(c(0,-rho*sqrt(vPRE*vPOST)),
               0,
               0,
