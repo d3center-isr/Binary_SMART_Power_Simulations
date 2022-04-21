@@ -20,14 +20,15 @@ n_sims <- 1000;
 target_alpha <- .05; 
 E_Y0 <- plogis(-.5);
 theta_R <- c(intercept = -1.5,
-                   y0 = 2,
-                   a1 = .5);
+             y0 = 2,
+             a1 = .5);
 beta_Y2 <- c(intercept = -1,
-                    y0 = .5,
-                    r = 1,
-                    a1 = .5,
-                    a2NR = .1,
-                    a1a2NR = .05);
+             y0 = .5,
+             r = 1,
+             a1 = .5,
+             a2NR = .1,
+             a1a2NR = .05);
+n_subjects_by_scenario <- 186;
 ##################################################################
 # Calculate marginal probabilities for R and Y2:
 ##################################################################
@@ -93,74 +94,27 @@ print(marg_E_Y2)
 
 
 
-stop();
+
 
 #rho <- .3;  # this is from numerical results; I want a better way
 
 
-######################################################
-# Loop over sample sizes
-######################################################
-mean_coef_estimates <- NULL;
-power_estimates <- NULL;
-rho_hat_summary <- NULL;
-scenario <- 0;
-
-
-n_subjects <- 186;
-
-#for (n_subjects in c(100,186,200)) {  
-scenario <- scenario+1;
-print(paste("Beginning scenario",scenario));
-
-
-
-######################################################
-##################################################################
-# Set up data structures to record results;
-##################################################################
-rho_hats <- rep(NA,n_sims);
-n_regimens <- 4;
-n_vars_wide <- 5;
-n_methods <- 3;
-n_links <- length(link_names);
-coef_estimates <- array(NA,c(n_sims,n_vars_wide,n_methods,n_links));
-target_contrasts <- array(NA,c(n_sims,n_methods,n_links));
-std_err_target_contrasts <- array(NA,c(n_sims,n_methods,n_links));
-dimnames(coef_estimates)[[2]] <- 
-  c("intercept","model-specific","time_A1","time_A2","time_A1_A2"); 
-dimnames(coef_estimates)[[3]] <- 
-  colnames(target_contrasts) <-
-  colnames(std_err_target_contrasts) <- c("1wave","2_ind","2_exch");
-dimnames(coef_estimates)[[4]] <- 
-  dimnames(target_contrasts)[[3]] <- 
-  dimnames(std_err_target_contrasts)[[3]] <- link_names;
-
-
-
-
-# Now need regimen marginal means pPOST
 
 
 
 
 
-
-
+stop();
 
 
 ##################################################################
-# Estimate power from one-wave formulas based on Kidwell et al (2018);
+# Estimate power from one-wave formulas based on Kidwell et al (2018)
+# for each scenario;
 ##################################################################
 r1 <- theta_R_0 + theta_R_Ypre*mu_pre + theta_R_A1;
 #P(R=1) for regimen 1 of pairwise comparison, involving A1=+1;
 r2 <- theta_R_0 + theta_R_Ypre*mu_pre - theta_R_A1; 
 #P(R=1) for regimen 2 of pairwise comparison, involving A1=-1;
-
-
-
-
-
 vPOST <- pPOST * (1-pPOST); # marginal variance from formula
 # for variance of a random binary variable (p(1-p));
 p1 <- pPOST[regimen1]; #P(Y_post=1) for regimen 1 of pairwise comparison, 
@@ -298,6 +252,53 @@ predicted_power_condprob_2_wave <-
 
 
 
+
+
+##################################################################
+# Set up data structures to record results;
+##################################################################
+n_regimens <- 4;
+n_methods <- 3;
+regimen_prob_estimates <- array(NA,c(n_scenarios,
+                                     n_sims,
+                                     n_regimens,
+                                     n_methods));
+target_contrasts <- array(NA,c(n_scenarios,
+                               n_sims,
+                               n_methods));
+std_err_target_contrasts <- array(NA,c(n_scenarios,
+                                       n_sims,
+                                       n_methods));
+rho_hat_estimates <- array(NA,c(n_scenarios,
+                                n_sims,
+                                n_methods));
+dimnames(regimen_prob_estimates)[[3]] <- c("mm","mp","pm","pp");
+dimnames(regimen_prob_estimates)[[4]] <- 
+  dimnames(target_contrasts)[[3]] <-
+  dimnames(std_err_target_contrasts)[[3]] <- 
+  dimnames(rho_hat_estimates)[[3]] <- c("1wave","2_ind","2_exch");
+
+
+
+
+stop();
+
+
+
+
+######################################################
+# Loop over sample sizes
+######################################################
+scenario <- 0;
+
+#for (n_subjects in c(100,186,200)) {  
+
+scenario <- scenario+1;
+n_subjects <- n_subjects_by_scenario[scenario];
+print(paste("Beginning scenario",
+            scenario,
+            "with sample size",
+            n_subjects));
 
 
 
