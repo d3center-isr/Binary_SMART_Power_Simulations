@@ -107,22 +107,22 @@ for (effect_size in c("low","medium","high")) {
                                                                     regimen2);
       # pretest and end only
       final_mean_estimates[this_sim,,] <- cbind(analysis_results$final_means_mid_only,
-                                                analysis_results$final_means_last_only,
                                                 analysis_results_old_way_1$final_means_2_waves_exch,
+                                                analysis_results$final_means_last_only,
                                                 analysis_results_old_way_2$final_means_2_waves_exch,
                                                 analysis_results$final_means_ind,
                                                 analysis_results$final_means_ar1,
                                                 analysis_results$final_means_exch);
       target_contrasts[this_sim,] <- c(analysis_results$target_contrast_mid_only,
-                                       analysis_results$target_contrast_last_only,
                                        analysis_results_old_way_1$target_contrast_2_waves_exch,
+                                       analysis_results$target_contrast_last_only,
                                        analysis_results_old_way_2$target_contrast_2_waves_exch,
                                        analysis_results$target_contrast_ind,
                                        analysis_results$target_contrast_ar1,
                                        analysis_results$target_contrast_exch);
       std_err_target_contrasts[this_sim,] <- c(analysis_results$std_err_target_contrast_mid_only,
-                                               analysis_results$std_err_target_contrast_last_only,
                                                analysis_results_old_way_1$std_err_target_contrast_2_waves_exch,
+                                               analysis_results$std_err_target_contrast_last_only,
                                                analysis_results_old_way_2$std_err_target_contrast_2_waves_exch,
                                                analysis_results$std_err_target_contrast_ind,
                                                analysis_results$std_err_target_contrast_ar1,
@@ -153,5 +153,6 @@ print(rbind(power_by_method[[1]],
             power_by_method[[2]],
             power_by_method[[3]],
             power_by_method[[4]],
-            power_by_method[[5]]))
+            power_by_method[[5]],
+            power_by_method[[6]]))
 save.image("Did_3_Wave_Sim.rdata");
