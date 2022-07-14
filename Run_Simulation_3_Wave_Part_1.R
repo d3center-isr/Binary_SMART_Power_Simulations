@@ -5,6 +5,7 @@ rm(list = ls());
 start_time <- Sys.time(); 
 set.seed(16801); 
 source("Simulate_Data_Logistic_3_wave.R");
+source("Analyze_Simulated_Data_Logistic.R");
 source("Analyze_Simulated_Data_Logistic_3_wave.R");
 library(geepack);   
 ##################################################################
@@ -19,7 +20,6 @@ target_alpha <- .05;
 overall_results <- NULL; 
 target_power <- .8;
 zQ <- qnorm(target_power);
-
 mean_by_method_and_regimen <- list();
 power_by_method <- list();
 mean_target_contrasts <- list();
@@ -27,7 +27,7 @@ average_rho_estimates <- list();
 this_scenario <- 0;
 
 for (effect_size in c("low","medium","high")) {
-  for (n_subjects  in c(300,500)) {
+  for (n_subjects in c(300,500)) {
     this_scenario <- this_scenario +1;
     beta_Y2_y0 <- 3;
     beta_Y2_a1 <- switch(effect_size,
@@ -47,7 +47,7 @@ for (effect_size in c("low","medium","high")) {
                  a1a2NR = 0);
     #####################################
     n_regimens <- 4;
-    n_methods <- 5;
+    n_methods <- 7;
     means <- matrix(NA, n_sims,6);
     cors <- matrix(NA, n_sims,6);
     final_mean_estimates <- array(NA,c(n_sims,
@@ -61,6 +61,8 @@ for (effect_size in c("low","medium","high")) {
       colnames(target_contrasts) <-
       colnames(std_err_target_contrasts) <- c("mid",
                                               "last",
+                                              "alt_mid",
+                                              "alt_last",
                                               "ind",
                                               "ar1",
                                               "exch");
@@ -87,18 +89,41 @@ for (effect_size in c("low","medium","high")) {
       analysis_results <- analyze_simulated_data_logistic_3_wave(sim_data_wide, 
                                                                  regimen1, 
                                                                  regimen2);
+      two_wave_data_1 <- sim_data_wide;  
+      two_wave_data_1$Y2 <- two_wave_data_1$Y1; two_wave_data_1$Y1 <- NA;
+      # Note that in the original version of the two-wave code, the outcomes
+      # were called Y0 and Y2 in order to emphasize that Y2 occurs after A2, not
+      # before. We later changed the notation on the two-wave case to Y0 and Y1
+      # anyway. So in order to reuse old code,whichever wave is being treated
+      # as posttest in this simulation experiment is temporarily renamed as Y2.
+      two_wave_data_2 <- sim_data_wide;  
+      two_wave_data_2$Y1 <- NA;
+      analysis_results_old_way_1 <- analyze_simulated_data_logistic(two_wave_data_1, 
+                                                                    regimen1, 
+                                                                    regimen2);
+      # pretest and middle only
+      analysis_results_old_way_2 <- analyze_simulated_data_logistic(two_wave_data_2, 
+                                                                    regimen1, 
+                                                                    regimen2);
+      # pretest and end only
       final_mean_estimates[this_sim,,] <- cbind(analysis_results$final_means_mid_only,
                                                 analysis_results$final_means_last_only,
+                                                analysis_results_old_way_1$final_means_2_waves_exch,
+                                                analysis_results_old_way_2$final_means_2_waves_exch,
                                                 analysis_results$final_means_ind,
                                                 analysis_results$final_means_ar1,
                                                 analysis_results$final_means_exch);
       target_contrasts[this_sim,] <- c(analysis_results$target_contrast_mid_only,
                                        analysis_results$target_contrast_last_only,
+                                       analysis_results_old_way_1$target_contrast_2_waves_exch,
+                                       analysis_results_old_way_2$target_contrast_2_waves_exch,
                                        analysis_results$target_contrast_ind,
                                        analysis_results$target_contrast_ar1,
                                        analysis_results$target_contrast_exch);
       std_err_target_contrasts[this_sim,] <- c(analysis_results$std_err_target_contrast_mid_only,
                                                analysis_results$std_err_target_contrast_last_only,
+                                               analysis_results_old_way_1$std_err_target_contrast_2_waves_exch,
+                                               analysis_results_old_way_2$std_err_target_contrast_2_waves_exch,
                                                analysis_results$std_err_target_contrast_ind,
                                                analysis_results$std_err_target_contrast_ar1,
                                                analysis_results$std_err_target_contrast_exch);
@@ -122,6 +147,11 @@ for (effect_size in c("low","medium","high")) {
                    as.integer(Sys.time()),".rdata",sep=""));
 }
 finish_time <- Sys.time();
-print(finish_time-start_time);
-write.csv(x=overall_results,file="results-3wave-step-1.csv");
+print(finish_time-start_time); 
+print("Power by method and scenario:")
+print(rbind(power_by_method[[1]],
+            power_by_method[[2]],
+            power_by_method[[3]],
+            power_by_method[[4]],
+            power_by_method[[5]]))
 save.image("Did_3_Wave_Sim.rdata");
