@@ -22,6 +22,7 @@ analyze_simulated_data_logistic_3_wave <- function(sim_data_wide,
   sim_long <- sim_long[order(sim_long$id,
                              sim_long$time),];
   sim_long$post <- 1 * (sim_long$time > 0);
+  sim_long$last <- 1 * (sim_long$time > 1);
   ################################################################
   # Apply pseudo replication to long data:
   sim_long$wave <- sim_long$time;  # Wave is the same thing as time, except that
@@ -84,8 +85,9 @@ analyze_simulated_data_logistic_3_wave <- function(sim_data_wide,
   # Test contrast under working independence two-wave GEE;
   regimens_after_pre <- cbind(regimens_1wave[,"int"],
                              1, 
+                             1,
                              regimens_1wave[,2:4]);
-  gee_formula_pre_post <- Y ~  post + post:A1 +post:A2 + post:A1:A2;
+  gee_formula_pre_post <- Y ~  post + last + post:A1 +post:A2 + post:A1:A2;
   # assumes piecewise constant for pretest (time 0) and posttest (times 1-2);
   # or equivalently piecewise linear for time 0 to 1 and time 1 to 2, with the
   # latter slope constrained to zero;
