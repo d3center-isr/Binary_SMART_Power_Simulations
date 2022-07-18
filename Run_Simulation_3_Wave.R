@@ -164,12 +164,21 @@ print(rbind(power_by_method[[1]],
             power_by_method[[5]],
             power_by_method[[6]]))
 
-print("Mean target contrasts:")
+print("Mean log odds ratios:")
 print(rbind(mean_target_contrasts[[1]],
             mean_target_contrasts[[2]],
             mean_target_contrasts[[3]],
             mean_target_contrasts[[4]],
             mean_target_contrasts[[5]],
             mean_target_contrasts[[6]]))
+
+
+print("Mean odds ratios:")
+print(exp(rbind(mean_target_contrasts[[1]],
+            mean_target_contrasts[[2]],
+            mean_target_contrasts[[3]],
+            mean_target_contrasts[[4]],
+            mean_target_contrasts[[5]],
+            mean_target_contrasts[[6]])))
 
 save.image("Did_3_Wave_Sim.rdata");

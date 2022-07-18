@@ -70,14 +70,14 @@ analyze_simulated_data_logistic <- function(sim_data_wide,
   gee_formula_1 <- Y2 ~ A1 + A2 + A1:A2; 
   gee_1_wave <- geeglm(formula = gee_formula_1,
                        id=id, 
-                       weights = known_weight, 
+                       weights = known_weight, family=binomial(),
                        data=data_for_analysis_wide,
                        corstr = "independence"); 
-  final_mean_estimates_1_wave <- drop(regimens_1_wave_model %*% 
+  final_logodds_estimates_1_wave <- drop(regimens_1_wave_model %*% 
                                         gee_1_wave$geese$beta);
   target_contrast_1_wave <-
-    final_mean_estimates_1_wave[regimen1] -
-    final_mean_estimates_1_wave[regimen2] ;
+    final_logodds_estimates_1_wave[regimen1] -
+    final_logodds_estimates_1_wave[regimen2] ;
   variance_of_target_contrast_1_wave <-
     dummy_contrast_coefficients %*% regimens_1_wave_model %*%
     gee_1_wave$geese$vbeta %*%
@@ -88,15 +88,15 @@ analyze_simulated_data_logistic <- function(sim_data_wide,
   gee_formula_adjusted <- Y2 ~  Y0 + A1 + A2 + A1:A2; 
   gee_adjusted <- geeglm(formula = gee_formula_adjusted,
                          id=id, 
-                         weights = known_weight, 
+                         weights = known_weight, family=binomial(), 
                          data=data_for_analysis_wide,
                          corstr = "independence"); 
-  final_mean_estimates_adjusted <- drop(regimens_1_wave_model %*% 
+  final_logodds_estimates_adjusted <- drop(regimens_1_wave_model %*% 
                                           gee_adjusted$geese$beta[c(1,3,4,5)]);
           # setting Y0 to zero;
   target_contrast_adjusted <-
-    final_mean_estimates_adjusted[regimen1] -
-    final_mean_estimates_adjusted[regimen2] ;
+    final_logodds_estimates_adjusted[regimen1] -
+    final_logodds_estimates_adjusted[regimen2] ;
   variance_of_target_contrast_adjusted <-
     dummy_contrast_coefficients %*% regimens_1_wave_model %*%
     gee_adjusted$geese$vbeta[c(1,3,4,5),c(1,3,4,5)] %*%
@@ -109,14 +109,14 @@ analyze_simulated_data_logistic <- function(sim_data_wide,
   gee_formula_2 <- Y ~  time + time:A1 +time:A2 + time:A1:A2; 
   gee_2_waves_ind <- geeglm(formula = gee_formula_2,
                             id=id,
-                            weights = known_weight, 
+                            weights = known_weight, family=binomial(), 
                             data=data_for_analysis_long,
                             corstr = "independence" );
-  final_mean_estimates_2_waves_ind <-
+  final_logodds_estimates_2_waves_ind <-
     drop(regimens_2_wave_model %*% gee_2_waves_ind$geese$beta);
   target_contrast_2_waves_ind <-
-    final_mean_estimates_2_waves_ind[regimen1] -
-    final_mean_estimates_2_waves_ind[regimen2] ;
+    final_logodds_estimates_2_waves_ind[regimen1] -
+    final_logodds_estimates_2_waves_ind[regimen2] ;
   variance_of_target_contrast_2_waves_ind <-
     dummy_contrast_coefficients %*% regimens_2_wave_model %*%
     gee_2_waves_ind$geese$vbeta %*%
@@ -147,15 +147,15 @@ analyze_simulated_data_logistic <- function(sim_data_wide,
                                   waves=data_for_analysis_long$total_wave);
   gee_2_waves_exch <- geeglm(formula = gee_formula_2,
                              id=id,
-                             weights = known_weight,
+                             weights = known_weight, family=binomial(),
                              data=data_for_analysis_long,
                              corstr = "fixed",
                              zcor=work_corr_as_zcor);
-  final_mean_estimates_2_waves_exch <-
+  final_logodds_estimates_2_waves_exch <-
     drop(regimens_2_wave_model %*% gee_2_waves_exch$geese$beta);
   target_contrast_2_waves_exch <-
-    final_mean_estimates_2_waves_exch[regimen1] -
-    final_mean_estimates_2_waves_exch[regimen2] ;
+    final_logodds_estimates_2_waves_exch[regimen1] -
+    final_logodds_estimates_2_waves_exch[regimen2] ;
   variance_of_target_contrast_2_waves_exch <-
     dummy_contrast_coefficients %*% regimens_2_wave_model %*%
     gee_2_waves_exch$geese$vbeta %*%
@@ -163,10 +163,10 @@ analyze_simulated_data_logistic <- function(sim_data_wide,
   std_err_target_contrast_2_waves_exch <-
     drop(sqrt(variance_of_target_contrast_2_waves_exch));
   answer <- list(
-    final_means_1_wave = final_mean_estimates_1_wave,
-    final_means_adjusted = final_mean_estimates_adjusted,
-    final_means_2_waves_ind = final_mean_estimates_2_waves_ind,
-    final_means_2_waves_exch = final_mean_estimates_2_waves_exch,
+    final_means_1_wave = final_logodds_estimates_1_wave,
+    final_means_adjusted = final_logodds_estimates_adjusted,
+    final_means_2_waves_ind = final_logodds_estimates_2_waves_ind,
+    final_means_2_waves_exch = final_logodds_estimates_2_waves_exch,
     target_contrast_1_wave = target_contrast_1_wave,
     target_contrast_adjusted = target_contrast_adjusted,
     target_contrast_2_waves_ind = target_contrast_2_waves_ind,
