@@ -130,7 +130,7 @@ for (pre_post_corr in c("no",
       ##################################################################
       n_regimens <- 4;
       n_methods <- 4;
-      final_mean_estimates <- array(NA,c(n_sims,
+      final_logodds_estimates <- array(NA,c(n_sims,
                                          n_regimens,
                                          n_methods));
       target_contrasts <- matrix(NA,n_sims, n_methods);
@@ -141,8 +141,8 @@ for (pre_post_corr in c("no",
       cor_R_Y2 <- rep(NA, n_sims);
       mean_R <- rep(NA, n_sims);
       mean_Y2 <- rep(NA, n_sims);
-      dimnames(final_mean_estimates)[[2]] <- c("mm","mp","pm","pp");
-      dimnames(final_mean_estimates)[[3]] <- 
+      dimnames(final_logodds_estimates)[[2]] <- c("mm","mp","pm","pp");
+      dimnames(final_logodds_estimates)[[3]] <- 
         colnames(target_contrasts) <-
         colnames(std_err_target_contrasts) <- c("1wave","2_ind","adj","2_exch");
       ######################################################
@@ -167,7 +167,7 @@ for (pre_post_corr in c("no",
         ##################################################################
         # Record results;
         ##################################################################
-        final_mean_estimates[this_sim,,] <- 
+        final_logodds_estimates[this_sim,,] <- 
           cbind(analysis_results$final_means_1_wave,
                 analysis_results$final_means_2_waves_ind,
                 analysis_results$final_means_adjusted,
@@ -408,10 +408,10 @@ for (pre_post_corr in c("no",
                                           effect_size=effect_size,
                                           beta_Y2_a1=beta_Y2_a1,  
                                           beta_Y2_y0=beta_Y2_y0, 
-                                          est_mm=mean(final_mean_estimates[,1,1]),
-                                          est_mp=mean(final_mean_estimates[,2,1]),
-                                          est_pm=mean(final_mean_estimates[,3,1]),
-                                          est_pp=mean(final_mean_estimates[,4,1]), 
+                                          est_mm=mean(final_logodds_estimates[,1,1]),
+                                          est_mp=mean(final_logodds_estimates[,2,1]),
+                                          est_pm=mean(final_logodds_estimates[,3,1]),
+                                          est_pp=mean(final_logodds_estimates[,4,1]), 
                                           mean_R=round(mean(mean_R),2),
                                           mean_Y2=round(mean(mean_Y2),2),
                                           cor_Y0_R=round(mean(cor_Y0_R),2),
@@ -424,16 +424,16 @@ for (pre_post_corr in c("no",
                                           p2=p2,
                                           from_marg_1=as.numeric(predicted_power_margprob),
                                           from_cond_1=as.numeric(predicted_power_condprob),
-                                          power1=round(power_estimates["1wave"],2),
+                                          power1=round(power_estimates["1wave"],3),
                                           from_marg_2=as.numeric(predicted_power_margprob_2_wave),
                                           from_cond_2=as.numeric(predicted_power_condprob_2_wave),
-                                          powerA=round(power_estimates["adj"],2),
-                                          power2=round(power_estimates["2_exch"],2),
+                                          powerA=round(power_estimates["adj"],3),
+                                          power2=round(power_estimates["2_exch"],3),
                                           n_from_marg_1=n_required_margprob,
                                           n_from_cond_1=n_required_condprob,
                                           n_from_marg_2=n_required_margprob_2_wave,
                                           n_from_cond_2=n_required_condprob_2_wave,
-                                          power_gain_add_wave=round(power_gain,2))); 
+                                          power_gain_add_wave=round(power_gain,3))); 
     }
   }
 }

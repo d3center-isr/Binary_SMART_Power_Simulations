@@ -14,7 +14,7 @@ regimen1 <- "pm";
 regimen2 <- "mm";
 # Target contrast is assumed to be marginal contrast of 
 # pm versus mm, i.e., (+1,-1) versus (-1,-1)
-n_sims <- 1000;
+n_sims <- 2000;
 target_alpha <- .05; 
 target_power <- .8;
 previous_results <- read.csv(file="results-step-1.csv");
